@@ -37,6 +37,7 @@ export const useSalaryCalculator = () => {
   
   // 计时器
   let timer: NodeJS.Timeout | null = null
+  let statusCheckTimer: NodeJS.Timeout | null = null
 
   // 计算每秒收入
   const calculateIncomePerSecond = () => {
@@ -131,9 +132,7 @@ export const useSalaryCalculator = () => {
       // 已下班，计算全天收入 - 直接使用每日工作小时数
       const dailyWorkHours = getWorkHoursPerDay()
       const incomePerSecond = calculateIncomePerSecond()
-      const totalIncome = dailyWorkHours * 3600 * incomePerSecond
-      console.log('Off-work calculation:', { dailyWorkHours, incomePerSecond, totalIncome })
-      return totalIncome
+      return dailyWorkHours * 3600 * incomePerSecond
     }
     
     // 工作中状态，计算当前时间的收入
@@ -158,9 +157,7 @@ export const useSalaryCalculator = () => {
   // 更新收入显示
   const updateIncome = () => {
     workStatus.value = getCurrentWorkStatus()
-    const income = calculateTodayIncome()
-    console.log('Update income:', { status: workStatus.value, income })
-    currentIncome.value = income
+    currentIncome.value = calculateTodayIncome()
   }
 
   // 开始定时器
@@ -170,7 +167,12 @@ export const useSalaryCalculator = () => {
     }
     
     updateIncome()
-    timer = setInterval(updateIncome, config.value.updateInterval)
+    
+    // 只有在工作中或尚未开始时才设置定时器
+    const currentStatus = getCurrentWorkStatus()
+    if (currentStatus === 'working' || currentStatus === 'not-started') {
+      timer = setInterval(updateIncome, config.value.updateInterval)
+    }
   }
 
   // 停止定时器
@@ -178,6 +180,42 @@ export const useSalaryCalculator = () => {
     if (timer) {
       clearInterval(timer)
       timer = null
+    }
+  }
+
+  // 启动状态检查定时器
+  const startStatusCheckTimer = () => {
+    if (statusCheckTimer) {
+      clearInterval(statusCheckTimer)
+    }
+    // 每分钟检查一次状态变化
+    statusCheckTimer = setInterval(checkAndManageTimer, 60000)
+  }
+
+  // 停止状态检查定时器
+  const stopStatusCheckTimer = () => {
+    if (statusCheckTimer) {
+      clearInterval(statusCheckTimer)
+      statusCheckTimer = null
+    }
+  }
+
+  // 检查并管理定时器状态
+  const checkAndManageTimer = () => {
+    const currentStatus = getCurrentWorkStatus()
+    
+    if (currentStatus === 'working' || currentStatus === 'not-started') {
+      // 需要定时器但没有运行时启动
+      if (!timer) {
+        startTimer()
+      }
+    } else {
+      // 不需要定时器时停止
+      if (timer) {
+        stopTimer()
+        // 但仍需要更新一次收入显示
+        updateIncome()
+      }
     }
   }
 
@@ -236,13 +274,24 @@ export const useSalaryCalculator = () => {
     startTimer()
   }, { deep: true })
 
+  // 初始化状态
+  const initializeState = () => {
+    workStatus.value = getCurrentWorkStatus()
+    currentIncome.value = calculateTodayIncome()
+  }
+  
+  // 立即初始化状态
+  initializeState()
+
   // 生命周期管理
   onMounted(() => {
     startTimer()
+    startStatusCheckTimer()
   })
 
   onUnmounted(() => {
     stopTimer()
+    stopStatusCheckTimer()
   })
 
   return {
