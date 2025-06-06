@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-gray-900 text-white font-sans;
+  }
+}
+
+@layer components {
+  .income-display {
+    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-green-400 font-mono leading-tight;
+    text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+    word-break: break-all;
+    overflow-wrap: anywhere;
+  }
+  
+  .status-indicator {
+    @apply inline-flex items-center px-4 py-2 rounded-full text-sm font-medium shadow-md;
+  }
+  
+  .status-working {
+    @apply bg-green-100 text-green-800 ring-2 ring-green-200;
+  }
+  
+  .status-not-started {
+    @apply bg-yellow-100 text-yellow-800 ring-2 ring-yellow-200;
+  }
+  
+  .status-off-work {
+    @apply bg-gray-100 text-gray-800 ring-2 ring-gray-200;
+  }
+  
+  .config-input {
+    @apply w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200;
+  }
+  
+  .config-label {
+    @apply block text-sm font-semibold text-gray-300 mb-2;
+  }
+  
+  .config-panel {
+    @apply bg-gray-800 rounded-xl p-6 space-y-6 h-full shadow-xl;
+  }
+  
+  .display-panel {
+    @apply bg-gray-800 rounded-xl p-8 text-center space-y-6 h-full shadow-xl flex flex-col justify-center;
+  }
+  
+  .stat-card {
+    @apply bg-gray-700 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-200;
+  }
+  
+  .equal-height-container {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch;
+  }
+} 
