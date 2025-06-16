@@ -22,11 +22,13 @@
       </div>
     </div>
   </div>
-
+  <Analytics />
 
 </template>
 
 <script setup lang="ts">
+import { Analytics } from '@vercel/analytics/nuxt'
+
 // 使用薪资计算器
 const {
   config,
